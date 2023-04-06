@@ -19,6 +19,8 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+
+
         setContent {
             FingeringTheme {
                 // A surface container using the 'background' color from the theme
@@ -30,23 +32,30 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-        RetrofitClient.api.equals(object : Callback<Response>{
-            override fun onResponse(call: Call<Response>, response: retrofit2.Response<Response>) {
-                if(response.code() == 200){
-                    Log.d("상태",response.body().toString())
-                }
-            }
-
-            override fun onFailure(call: Call<Response>, t: Throwable) {
-                Log.d("상태",t.message.toString())
-            }
-        })
     }
 }
 
 @Composable
 fun Greeting(name: String) {
-    Text(text = "Hello $name!")
+    var data: String = ""
+    RetrofitClient.api.get().enqueue(object : Callback<Response>{
+        override fun onResponse(call: Call<Response>, response: retrofit2.Response<Response>) {
+            if(response.code() == 200){
+                data = response.body().toString()
+                Log.d("상태",response.body().toString())
+            } else {
+                Log.d("상태",response.code().toString())
+            }
+        }
+
+        override fun onFailure(call: Call<Response>, t: Throwable) {
+            //error
+            Log.d("상태",t.message.toString())
+        }
+
+    })
+
+    Text(text = "Hello $data")
 }
 
 @Preview(showBackground = true)
@@ -55,21 +64,4 @@ fun DefaultPreview() {
     FingeringTheme {
         Greeting("Android")
     }
-}
-fun retrofit(){
-    RetrofitClient.api.equals(object : Callback<Response>{
-        override fun onResponse(call: Call<Response>, response: retrofit2.Response<Response>) {
-            if(response.code() == 200){
-                Log.d("상태","시간 " +response.body()!!.time)
-                Log.d("상태","위치 " +response.body()!!.station)
-                Log.d("상태","상태" +response.body()!!.status)
-                Log.d("상태","온도 " +response.body()!!.temp)
-                Log.d("상태","타입" +response.body()!!.type)
-            }
-        }
-
-        override fun onFailure(call: Call<Response>, t: Throwable) {
-            Log.d("상태",t.message.toString())
-        }
-    })
 }
